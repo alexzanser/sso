@@ -15,14 +15,16 @@ type App struct {
 	port       int
 }
 
-func NewApp(log *slog.Logger, port int) *App {
-
+func NewApp(log *slog.Logger,
+	port int,
+	authService authgrpc.Auth,
+) *App {
 	grpcServer := grpc.NewServer()
-	authgrpc.Register(grpcServer)
 
+	authgrpc.Register(grpcServer, authService)
 	return &App{
 		log:        log,
-		grpcServer: grpc.NewServer(),
+		grpcServer: grpcServer,
 		port:       port,
 	}
 }
@@ -42,7 +44,7 @@ func (a *App) Run() error {
 		slog.Int("port", a.port),
 	)
 
-	l, err := net.Listen("tcp", fmt.Sprintf(":%d", a.port))
+	l, err := net.Listen("tcp", fmt.Sprintf("127.0.0.1:%d", a.port))
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}

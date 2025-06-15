@@ -3,6 +3,8 @@ package main
 import (
 	"log/slog"
 	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/alexzanser/sso/internal/app"
 	"github.com/alexzanser/sso/internal/config"
@@ -19,14 +21,12 @@ func main() {
 
 	application.GRPCsrv.MustRun()
 
-	// TODO: инциализировать объект конфига
-
-	// TODO: инициализировать логгер
-
-	// TODO: инициализация приложения(app)
-
-	// TODO: запусить grpc server
-
+	
+	stop := make(chan os.Signal, 1)
+	signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM)
+	<-stop
+	application.GRPCsrv.Stop()
+	log.Info("app stopped")
 }
 
 const (
