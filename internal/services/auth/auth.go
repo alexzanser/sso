@@ -16,6 +16,7 @@ import (
 var (
 	ErrInvalidCredentials = errors.New("invalid credentials")
 	ErrInvalidUserID      = errors.New("invalid user ID")
+	ErrUserAlreadyExists  = errors.New("user already exists")
 )
 
 type AuthService struct {
@@ -73,7 +74,7 @@ func (a *AuthService) RegisterNewUser(ctx context.Context, email, password strin
 	if err != nil {
 		if errors.Is(err, storage.ErrUserExist) {
 			log.Warn("user already exists", slog.String("email", email))
-			return 0, fmt.Errorf("%s: %w", op, storage.ErrUserExist)
+			return 0, fmt.Errorf("%s: %w", op, ErrUserAlreadyExists)
 		}
 		log.Error("failed to save user", slog.Any("error", err))
 		return 0, err
